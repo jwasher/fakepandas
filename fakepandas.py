@@ -1,5 +1,6 @@
 import itertools
 def _validate(d):
+    'Get number of data rows. Raise ValueError if they are inconsistent.'
     if len(d) == 0:
         return
     def gen_columns():
