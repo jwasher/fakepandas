@@ -63,7 +63,7 @@ class Dataset:
                 filtered_data[label].append(self.data[label][index])
         for index in range(self.length):
             value = self.data[comparison.label][index]
-            if value < comparison.value:
+            if comparison.apply(value):
                 append_row(index)
         return Dataset(filtered_data)
 
