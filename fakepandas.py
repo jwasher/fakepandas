@@ -45,8 +45,6 @@ class LabelReference:
         return GreaterThanEqualsComparison(self.label, value)
     def __le__(self, value):
         return LessThanEqualsComparison(self.label, value)
-    def filter(self, row):
-        pass
 
 class Dataset:
     def __init__(self, data: dict):
