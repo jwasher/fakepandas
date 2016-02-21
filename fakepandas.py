@@ -42,11 +42,11 @@ class Dataset:
         self.labels = sorted(data.keys())
 
     def __str__(self):
-        header = '\t'.join(self.labels) + '\n'
         def row(index):
             return '\t'.join([
                 str(self.data[label][index])
                 for label in self.labels])
+        header = '\t'.join(self.labels) + '\n'
         return header + '\n'.join([
             row(index) for index in range(self.length)])
 
@@ -56,15 +56,15 @@ class Dataset:
         return LabelReference(label)
 
     def __getitem__(self, comparison: LessThanComparison):
-        data = dict((label, []) for label in self.labels)
+        filtered_data = dict((label, []) for label in self.labels)
         def append_row(index):
             for label in self.labels:
-                data[label].append(self.data[label][index])
+                filtered_data[label].append(self.data[label][index])
         for index in range(self.length):
             value = self.data[comparison.label][index]
             if value < comparison.value:
                 append_row(index)
-        return Dataset(data)
+        return Dataset(filtered_data)
 
     def pprint(self):
         print(self.pprint_str())
