@@ -70,31 +70,30 @@ class Dataset:
         print(self.pprint_str())
 
     def pprint_str(self):
-        value_lengths = (len(str(n))
-                         for row in self.values.values()
-                         for n in row)
-        label_lengths = (len(str(label))
-                             for label in self.values.keys())
-        field_widths = dict()
-        for label in self.labels:
+        # helpers
+        def width_of(label):
             width = max(len(str(value)) for value in self.values[label])
             width = max([width, len(str(label))])
-            field_widths[label] = width
-        table_width = sum(width for width in field_widths.values()) + 3 * (len(self.labels)-1) + 4
-        hr = '-' * table_width
+            return width
         def format(value, label):
-            value = str(value)
-            return '{value:>{width}}'.format(value=value, width=field_widths[label])
+            return '{value:>{width}}'.format(value=str(value), width=field_widths[label])
+
+        # precompute
+        field_widths = {label: width_of(label) for label in self.labels}
+        table_width = sum(width for width in field_widths.values()) + 3 * (len(self.labels)-1) + 4
+        HR = '-' * table_width
+
+        # render lines
         labels_line = '| ' + ' | '.join(format(label, label) for label in self.labels) + ' |'
         lines = [
-            hr,
+            HR,
             labels_line,
-            hr,
+            HR,
         ]
         for index in range(self.length):
-            row_values = (format(self.values[label][index], label) for label in self.labels)
-            lines.append('| ' + ' | '.join(row_values) + ' |')
-        lines.append(hr)
+            formatted_values = (format(self.values[label][index], label) for label in self.labels)
+            lines.append('| ' + ' | '.join(formatted_values) + ' |')
+        lines.append(HR)
         return '\n'.join(lines)
         
 
