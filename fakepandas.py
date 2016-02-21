@@ -1,4 +1,4 @@
-import itertools
+import operator
 def _validate(d):
     'Get number of data rows. Raise ValueError if they are inconsistent.'
     if len(d) == 0:
@@ -14,25 +14,24 @@ def _validate(d):
     return length
 
 class Comparison:
+    operate = None
     def __init__(self, label, value):
         self.label = label
         self.value = value
-    
+    def apply(self, other):
+        return self.operate(other, self.value)
+
 class LessThanComparison(Comparison):
-    def apply(self, other):
-        return other < self.value
-        
+    operate = operator.lt
+
 class GreaterThanComparison(Comparison):
-    def apply(self, other):
-        return other > self.value
+    operate = operator.gt
 
 class GreaterThanEqualsComparison(Comparison):
-    def apply(self, other):
-        return other >= self.value
+    operate = operator.ge
 
 class LessThanEqualsComparison(Comparison):
-    def apply(self, other):
-        return other <= self.value
+    operate = operator.le
 
 class LabelReference:
     def __init__(self, label):
