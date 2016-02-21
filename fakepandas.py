@@ -26,6 +26,14 @@ class GreaterThanComparison(Comparison):
     def apply(self, other):
         return other > self.value
 
+class GreaterThanEqualsComparison(Comparison):
+    def apply(self, other):
+        return other >= self.value
+
+class LessThanEqualsComparison(Comparison):
+    def apply(self, other):
+        return other <= self.value
+
 class LabelReference:
     def __init__(self, label):
         self.label = label
@@ -33,6 +41,10 @@ class LabelReference:
         return LessThanComparison(self.label, value)
     def __gt__(self, value):
         return GreaterThanComparison(self.label, value)
+    def __ge__(self, value):
+        return GreaterThanEqualsComparison(self.label, value)
+    def __le__(self, value):
+        return LessThanEqualsComparison(self.label, value)
     def filter(self, row):
         pass
 
