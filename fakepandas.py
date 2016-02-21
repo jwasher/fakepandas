@@ -36,22 +36,22 @@ class LabelReference:
         pass
 
 class Dataset:
-    def __init__(self, values: dict):
-        self.values = values
-        self.length = _validate(values)
-        self.labels = sorted(values.keys())
+    def __init__(self, data: dict):
+        self.data = data
+        self.length = _validate(data)
+        self.labels = sorted(data.keys())
 
     def __str__(self):
         header = '\t'.join(self.labels) + '\n'
         def row(index):
             return '\t'.join([
-                str(self.values[label][index])
+                str(self.data[label][index])
                 for label in self.labels])
         return header + '\n'.join([
             row(index) for index in range(self.length)])
 
     def __getattr__(self, label):
-        if label not in self.values:
+        if label not in self.data:
             raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, label))
         return LabelReference(label)
 
@@ -59,9 +59,9 @@ class Dataset:
         data = dict((label, []) for label in self.labels)
         def append_row(index):
             for label in self.labels:
-                data[label].append(self.values[label][index])
+                data[label].append(self.data[label][index])
         for index in range(self.length):
-            value = self.values[comparison.label][index]
+            value = self.data[comparison.label][index]
             if value < comparison.value:
                 append_row(index)
         return Dataset(data)
@@ -72,7 +72,7 @@ class Dataset:
     def pprint_str(self):
         # helpers
         def width_of(label):
-            width = max(len(str(value)) for value in self.values[label])
+            width = max(len(str(value)) for value in self.data[label])
             width = max([width, len(str(label))])
             return width
         def format(value, label):
@@ -91,7 +91,7 @@ class Dataset:
             HR,
         ]
         for index in range(self.length):
-            formatted_values = (format(self.values[label][index], label) for label in self.labels)
+            formatted_values = (format(self.data[label][index], label) for label in self.labels)
             lines.append('| ' + ' | '.join(formatted_values) + ' |')
         lines.append(HR)
         return '\n'.join(lines)
