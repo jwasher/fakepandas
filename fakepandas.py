@@ -13,64 +13,46 @@ def _validate(d):
             raise ValueError(index)
     return length
 
+def logical_and(a, b):
+    return a and b
+
+def logical_or(a, b):
+    return a or b
+
+class Conjunction:
+    def __init__(self, left, right, combine):
+        self.left = left
+        self.right = right
+        self.combine = combine
+    def apply(self, data, index):
+        return self.combine(self.left.apply(data, index), self.right.apply(data, index))
+
 class Comparison:
-    operate = None
-    def __init__(self, label, value):
+    def __init__(self, label, value, operate):
         self.label = label
         self.value = value
+        self.operate = operate
     def apply(self, data, index):
         other_value = data[self.label][index]
         return self.operate(other_value, self.value)
     def __and__(self, other):
-        return AndConjunction(self, other)
+        return Conjunction(self, other, logical_and)
     def __or__(self, other):
-        return OrConjunction(self, other)
-
-class LessThanComparison(Comparison):
-    operate = operator.lt
-
-class GreaterThanComparison(Comparison):
-    operate = operator.gt
-
-class GreaterThanEqualsComparison(Comparison):
-    operate = operator.ge
-
-class LessThanEqualsComparison(Comparison):
-    operate = operator.le
-
-class EqualsComparison(Comparison):
-    operate = operator.eq
-
-class Conjunction:
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-    def apply(self, data, index):
-        return self.combine(self.left.apply(data, index), self.right.apply(data, index))
-    def combine(self, a, b):
-        pass
-
-class AndConjunction(Conjunction):
-    def combine(self, a, b):
-        return a and b
-
-class OrConjunction(Conjunction):
-    def combine(self, a, b):
-        return a or b
+        return Conjunction(self, other, logical_or)
 
 class LabelReference:
     def __init__(self, label):
         self.label = label
     def __lt__(self, value):
-        return LessThanComparison(self.label, value)
+        return Comparison(self.label, value, operator.lt)
     def __gt__(self, value):
-        return GreaterThanComparison(self.label, value)
+        return Comparison(self.label, value, operator.gt)
     def __ge__(self, value):
-        return GreaterThanEqualsComparison(self.label, value)
+        return Comparison(self.label, value, operator.ge)
     def __le__(self, value):
-        return LessThanEqualsComparison(self.label, value)
+        return Comparison(self.label, value, operator.le)
     def __eq__(self, value):
-        return EqualsComparison(self.label, value)
+        return Comparison(self.label, value, operator.eq)
 
 class Dataset:
     def __init__(self, data: dict):
