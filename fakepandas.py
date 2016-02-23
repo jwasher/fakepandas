@@ -18,8 +18,11 @@ class Comparison:
     def __init__(self, label, value):
         self.label = label
         self.value = value
-    def apply(self, other):
-        return self.operate(other, self.value)
+    def apply(self, data, index):
+        other_value = data[self.label][index]
+        return self.operate(other_value, self.value)
+    def __and__(self, other):
+        return AndConjunction(self, other)
 
 class LessThanComparison(Comparison):
     operate = operator.lt
@@ -32,6 +35,13 @@ class GreaterThanEqualsComparison(Comparison):
 
 class LessThanEqualsComparison(Comparison):
     operate = operator.le
+
+class AndConjunction:
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+    def apply(self, data, index):
+        return self.left.apply(data, index) and self.right.apply(data, index)
 
 class LabelReference:
     def __init__(self, label):
@@ -65,14 +75,13 @@ class Dataset:
             raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, label))
         return LabelReference(label)
 
-    def __getitem__(self, comparison: LessThanComparison):
+    def __getitem__(self, comparison):
         filtered_data = dict((label, []) for label in self.labels)
         def append_row(index):
             for label in self.labels:
                 filtered_data[label].append(self.data[label][index])
         for index in range(self.length):
-            value = self.data[comparison.label][index]
-            if comparison.apply(value):
+            if comparison.apply(self.data, index):
                 append_row(index)
         return Dataset(filtered_data)
 
