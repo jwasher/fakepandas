@@ -23,6 +23,8 @@ class Comparison:
         return self.operate(other_value, self.value)
     def __and__(self, other):
         return AndConjunction(self, other)
+    def __or__(self, other):
+        return OrConjunction(self, other)
 
 class LessThanComparison(Comparison):
     operate = operator.lt
@@ -36,12 +38,22 @@ class GreaterThanEqualsComparison(Comparison):
 class LessThanEqualsComparison(Comparison):
     operate = operator.le
 
+class EqualsComparison(Comparison):
+    operate = operator.eq
+
 class AndConjunction:
     def __init__(self, left, right):
         self.left = left
         self.right = right
     def apply(self, data, index):
         return self.left.apply(data, index) and self.right.apply(data, index)
+
+class OrConjunction:
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+    def apply(self, data, index):
+        return self.left.apply(data, index) or self.right.apply(data, index)
 
 class LabelReference:
     def __init__(self, label):
@@ -54,6 +66,8 @@ class LabelReference:
         return GreaterThanEqualsComparison(self.label, value)
     def __le__(self, value):
         return LessThanEqualsComparison(self.label, value)
+    def __eq__(self, value):
+        return EqualsComparison(self.label, value)
 
 class Dataset:
     def __init__(self, data: dict):

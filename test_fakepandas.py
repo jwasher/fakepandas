@@ -79,3 +79,10 @@ class TestDataset(unittest.TestCase):
 4	13	12
 5	14	15'''
         self.assertEqual(as_str, str(d))
+
+        d = dataset1[(dataset1.A >= 3) | (dataset1.B == 11)]
+        as_str = '''A	B	C
+2	11	6
+4	13	12
+5	14	15'''
+        self.assertEqual(as_str, str(d))
