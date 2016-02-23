@@ -41,19 +41,22 @@ class LessThanEqualsComparison(Comparison):
 class EqualsComparison(Comparison):
     operate = operator.eq
 
-class AndConjunction:
+class Conjunction:
     def __init__(self, left, right):
         self.left = left
         self.right = right
     def apply(self, data, index):
-        return self.left.apply(data, index) and self.right.apply(data, index)
+        return self.combine(self.left.apply(data, index), self.right.apply(data, index))
+    def combine(self, a, b):
+        pass
 
-class OrConjunction:
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-    def apply(self, data, index):
-        return self.left.apply(data, index) or self.right.apply(data, index)
+class AndConjunction(Conjunction):
+    def combine(self, a, b):
+        return a and b
+
+class OrConjunction(Conjunction):
+    def combine(self, a, b):
+        return a or b
 
 class LabelReference:
     def __init__(self, label):
