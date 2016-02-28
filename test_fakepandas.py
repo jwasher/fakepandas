@@ -93,6 +93,13 @@ class TestDataset(unittest.TestCase):
 -3	12	9'''
         self.assertEqual(as_str, str(d))
 
+        d = dataset1[d.B - d.C >= 3]
+        as_str = '''A	B	C
+-1	10	3
+2	11	6
+-3	12	9'''
+        self.assertEqual(as_str, str(d))
+
 
 
 

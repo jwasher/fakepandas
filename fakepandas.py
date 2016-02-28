@@ -61,6 +61,8 @@ class LabelReference:
         return SimpleComparison(self.label, value, operator.eq)
     def __add__(self, other):
         return PairedLabelReference(self, other, operator.add)
+    def __sub__(self, other):
+        return PairedLabelReference(self, other, operator.sub)
 
 class PairedLabelReference(LabelReference):
     def __init__(self, first, second, operate):
@@ -73,6 +75,12 @@ class PairedLabelReference(LabelReference):
             second_value = data[self.second.label][index]
             return self.operate(first_value, second_value)
         return Comparison(lookup, value, operator.lt)
+    def __ge__(self, value):
+        def lookup(data, index):
+            first_value = data[self.first.label][index]
+            second_value = data[self.second.label][index]
+            return self.operate(first_value, second_value)
+        return Comparison(lookup, value, operator.ge)
 
 class Dataset:
     def __init__(self, data: dict):
