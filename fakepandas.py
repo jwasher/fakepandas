@@ -28,31 +28,51 @@ class Conjunction:
         return self.combine(self.left.apply(data, index), self.right.apply(data, index))
 
 class Comparison:
-    def __init__(self, label, value, operate):
-        self.label = label
+    def __init__(self, lookup, value, operate):
+        self.lookup = lookup
         self.value = value
         self.operate = operate
     def apply(self, data, index):
-        other_value = data[self.label][index]
+        other_value = self.lookup(data, index)
         return self.operate(other_value, self.value)
     def __and__(self, other):
         return Conjunction(self, other, logical_and)
     def __or__(self, other):
         return Conjunction(self, other, logical_or)
 
+class SimpleComparison(Comparison):
+    def __init__(self, label, value, operate):
+        def lookup(data, index):
+            return data[label][index]
+        super().__init__(lookup, value, operate)
+    
 class LabelReference:
     def __init__(self, label):
         self.label = label
     def __lt__(self, value):
-        return Comparison(self.label, value, operator.lt)
+        return SimpleComparison(self.label, value, operator.lt)
     def __gt__(self, value):
-        return Comparison(self.label, value, operator.gt)
+        return SimpleComparison(self.label, value, operator.gt)
     def __ge__(self, value):
-        return Comparison(self.label, value, operator.ge)
+        return SimpleComparison(self.label, value, operator.ge)
     def __le__(self, value):
-        return Comparison(self.label, value, operator.le)
+        return SimpleComparison(self.label, value, operator.le)
     def __eq__(self, value):
-        return Comparison(self.label, value, operator.eq)
+        return SimpleComparison(self.label, value, operator.eq)
+    def __add__(self, other):
+        return PairedLabelReference(self, other, operator.add)
+
+class PairedLabelReference(LabelReference):
+    def __init__(self, first, second, operate):
+        self.first = first
+        self.second = second
+        self.operate = operate
+    def __lt__(self, value):
+        def lookup(data, index):
+            first_value = data[self.first.label][index]
+            second_value = data[self.second.label][index]
+            return self.operate(first_value, second_value)
+        return Comparison(lookup, value, operator.lt)
 
 class Dataset:
     def __init__(self, data: dict):
