@@ -69,18 +69,14 @@ class PairedLabelReference(LabelReference):
         self.first = first
         self.second = second
         self.operate = operate
+    def lookup(self, data, index):
+        first_value = data[self.first.label][index]
+        second_value = data[self.second.label][index]
+        return self.operate(first_value, second_value)
     def __lt__(self, value):
-        def lookup(data, index):
-            first_value = data[self.first.label][index]
-            second_value = data[self.second.label][index]
-            return self.operate(first_value, second_value)
-        return Comparison(lookup, value, operator.lt)
+        return Comparison(self.lookup, value, operator.lt)
     def __ge__(self, value):
-        def lookup(data, index):
-            first_value = data[self.first.label][index]
-            second_value = data[self.second.label][index]
-            return self.operate(first_value, second_value)
-        return Comparison(lookup, value, operator.ge)
+        return Comparison(self.lookup, value, operator.ge)
 
 class Dataset:
     def __init__(self, data: dict):
