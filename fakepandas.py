@@ -1,5 +1,5 @@
 import operator
-def _validate(d):
+def num_rows(d):
     'Get number of data rows. Raise ValueError if they are inconsistent.'
     if len(d) == 0:
         return
@@ -81,7 +81,7 @@ class PairedLabelReference(LabelReference):
 class Dataset:
     def __init__(self, data: dict):
         self.data = data
-        self.length = _validate(data)
+        self.length = num_rows(data)
         self.labels = sorted(data.keys())
 
     def __str__(self):
