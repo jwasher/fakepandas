@@ -24,16 +24,16 @@ class Conjunction:
         self.left = left
         self.right = right
         self.combine = combine
-    def apply(self, data, index):
-        return self.combine(self.left.apply(data, index), self.right.apply(data, index))
+    def apply(self, data, row_number):
+        return self.combine(self.left.apply(data, row_number), self.right.apply(data, row_number))
 
 class Comparison:
     def __init__(self, lookup, value, operate):
         self.lookup = lookup
         self.value = value
         self.operate = operate
-    def apply(self, data, index):
-        other_value = self.lookup(data, index)
+    def apply(self, data, row_number):
+        other_value = self.lookup(data, row_number)
         return self.operate(other_value, self.value)
     def __and__(self, other):
         return Conjunction(self, other, logical_and)
@@ -42,8 +42,8 @@ class Comparison:
 
 class SimpleComparison(Comparison):
     def __init__(self, label: str, value, operate):
-        def lookup(data, index):
-            return data[label][index]
+        def lookup(data, row_number):
+            return data[label][row_number]
         super().__init__(lookup, value, operate)
     
 class LabelReference:
@@ -69,9 +69,9 @@ class PairedLabelReference(LabelReference):
         self.first = first
         self.second = second
         self.operate = operate
-    def lookup(self, data, index):
-        first_value = data[self.first.label][index]
-        second_value = data[self.second.label][index]
+    def lookup(self, data, row_number):
+        first_value = data[self.first.label][row_number]
+        second_value = data[self.second.label][row_number]
         return self.operate(first_value, second_value)
     def __lt__(self, value):
         return Comparison(self.lookup, value, operator.lt)
@@ -85,13 +85,13 @@ class Dataset:
         self.labels = sorted(data.keys())
 
     def __str__(self):
-        def row(index):
+        def row(row_number):
             return '\t'.join([
-                str(self.data[label][index])
+                str(self.data[label][row_number])
                 for label in self.labels])
         header = '\t'.join(self.labels) + '\n'
         return header + '\n'.join([
-            row(index) for index in range(self.length)])
+            row(row_number) for row_number in range(self.length)])
 
     def __getattr__(self, label):
         if label not in self.data:
@@ -100,12 +100,12 @@ class Dataset:
 
     def __getitem__(self, comparison):
         filtered_data = dict((label, []) for label in self.labels)
-        def append_row(index):
+        def append_row(row_number):
             for label in self.labels:
-                filtered_data[label].append(self.data[label][index])
-        for index in range(self.length):
-            if comparison.apply(self.data, index):
-                append_row(index)
+                filtered_data[label].append(self.data[label][row_number])
+        for row_number in range(self.length):
+            if comparison.apply(self.data, row_number):
+                append_row(row_number)
         return Dataset(filtered_data)
 
     def pprint(self):
@@ -132,8 +132,8 @@ class Dataset:
             labels_line,
             HR,
         ]
-        for index in range(self.length):
-            formatted_values = (format(self.data[label][index], label) for label in self.labels)
+        for row_number in range(self.length):
+            formatted_values = (format(self.data[label][row_number], label) for label in self.labels)
             lines.append('| ' + ' | '.join(formatted_values) + ' |')
         lines.append(HR)
         return '\n'.join(lines)
