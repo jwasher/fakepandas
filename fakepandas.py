@@ -41,13 +41,13 @@ class Comparison:
         return Conjunction(self, other, logical_or)
 
 class SimpleComparison(Comparison):
-    def __init__(self, label, value, operate):
+    def __init__(self, label: str, value, operate):
         def lookup(data, index):
             return data[label][index]
         super().__init__(lookup, value, operate)
     
 class LabelReference:
-    def __init__(self, label):
+    def __init__(self, label: str):
         self.label = label
     def __lt__(self, value):
         return SimpleComparison(self.label, value, operator.lt)
