@@ -46,6 +46,10 @@ class TestDataset(unittest.TestCase):
 -------------------'''
         self.assertEqual(dataset2_pprint, str(dataset2.pprint_str()))
 
+    def test_empty(self):
+        d = Dataset({})
+        self.assertEqual('\n', str(d))
+
     def test_filter(self):
         d = dataset1[dataset1.A < 0]
         as_str = '''A	B	C

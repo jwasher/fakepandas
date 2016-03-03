@@ -3,7 +3,7 @@ import operator
 def num_rows(d):
     'Get number of data rows. Raise ValueError if they are inconsistent.'
     if len(d) == 0:
-        return
+        return 0
     def gen_columns():
         for v in d.values():
             yield v
