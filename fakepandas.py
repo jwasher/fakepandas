@@ -49,16 +49,18 @@ class Comparison(GeneralComparison):
 class LabelReference:
     def __init__(self, label: str):
         self.label = label
+    def compare(self, value, operate):
+        return Comparison(self.label, value, operate)
     def __lt__(self, value):
-        return Comparison(self.label, value, operator.lt)
+        return self.compare(value, operator.lt)
     def __gt__(self, value):
-        return Comparison(self.label, value, operator.gt)
+        return self.compare(value, operator.gt)
     def __ge__(self, value):
-        return Comparison(self.label, value, operator.ge)
+        return self.compare(value, operator.ge)
     def __le__(self, value):
-        return Comparison(self.label, value, operator.le)
+        return self.compare(value, operator.le)
     def __eq__(self, value):
-        return Comparison(self.label, value, operator.eq)
+        return self.compare(value, operator.eq)
     def __add__(self, other):
         return PairedLabelReference(self, other, operator.add)
     def __sub__(self, other):
@@ -78,16 +80,8 @@ class PairedLabelReference(LabelReference):
         else:
             second_value = self.second
         return self.operate(first_value, second_value)
-    def __lt__(self, value):
-        return GeneralComparison(self.lookup, value, operator.lt)
-    def __le__(self, value):
-        return GeneralComparison(self.lookup, value, operator.le)
-    def __ge__(self, value):
-        return GeneralComparison(self.lookup, value, operator.ge)
-    def __gt__(self, value):
-        return GeneralComparison(self.lookup, value, operator.gt)
-    def __eq__(self, value):
-        return GeneralComparison(self.lookup, value, operator.eq)
+    def compare(self, value, operate):
+        return GeneralComparison(self.lookup, value, operate)
 
 class Dataset:
     def __init__(self, data: dict):
