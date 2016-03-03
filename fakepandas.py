@@ -27,7 +27,7 @@ class Conjunction:
     def apply(self, data, row_number):
         return self.combine(self.left.apply(data, row_number), self.right.apply(data, row_number))
 
-class Comparison:
+class GeneralComparison:
     def __init__(self, lookup, value, operate):
         self.lookup = lookup
         self.value = value
@@ -40,7 +40,7 @@ class Comparison:
     def __or__(self, other):
         return Conjunction(self, other, logical_or)
 
-class SimpleComparison(Comparison):
+class Comparison(GeneralComparison):
     def __init__(self, label: str, value, operate):
         def lookup(data, row_number):
             return data[label][row_number]
@@ -50,15 +50,15 @@ class LabelReference:
     def __init__(self, label: str):
         self.label = label
     def __lt__(self, value):
-        return SimpleComparison(self.label, value, operator.lt)
+        return Comparison(self.label, value, operator.lt)
     def __gt__(self, value):
-        return SimpleComparison(self.label, value, operator.gt)
+        return Comparison(self.label, value, operator.gt)
     def __ge__(self, value):
-        return SimpleComparison(self.label, value, operator.ge)
+        return Comparison(self.label, value, operator.ge)
     def __le__(self, value):
-        return SimpleComparison(self.label, value, operator.le)
+        return Comparison(self.label, value, operator.le)
     def __eq__(self, value):
-        return SimpleComparison(self.label, value, operator.eq)
+        return Comparison(self.label, value, operator.eq)
     def __add__(self, other):
         return PairedLabelReference(self, other, operator.add)
     def __sub__(self, other):
@@ -74,9 +74,9 @@ class PairedLabelReference(LabelReference):
         second_value = data[self.second.label][row_number]
         return self.operate(first_value, second_value)
     def __lt__(self, value):
-        return Comparison(self.lookup, value, operator.lt)
+        return GeneralComparison(self.lookup, value, operator.lt)
     def __ge__(self, value):
-        return Comparison(self.lookup, value, operator.ge)
+        return GeneralComparison(self.lookup, value, operator.ge)
 
 class Dataset:
     def __init__(self, data: dict):
