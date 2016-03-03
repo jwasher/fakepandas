@@ -75,8 +75,14 @@ class PairedLabelReference(LabelReference):
         return self.operate(first_value, second_value)
     def __lt__(self, value):
         return GeneralComparison(self.lookup, value, operator.lt)
+    def __le__(self, value):
+        return GeneralComparison(self.lookup, value, operator.le)
     def __ge__(self, value):
         return GeneralComparison(self.lookup, value, operator.ge)
+    def __gt__(self, value):
+        return GeneralComparison(self.lookup, value, operator.gt)
+    def __eq__(self, value):
+        return GeneralComparison(self.lookup, value, operator.eq)
 
 class Dataset:
     def __init__(self, data: dict):
