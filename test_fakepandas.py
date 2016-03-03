@@ -125,14 +125,14 @@ class TestDataset(unittest.TestCase):
 5	14	15'''
         self.assertEqual(as_str, str(d))
         
-#         d = dataset1[dataset1.C + 2 < dataset1.B]
-#         as_str = '''A	B	C
-# -1	10	3
-# 2	11	6
-# -3	12	9
-# 4	13	12
-# 5	14	15'''
-#         self.assertEqual(as_str, str(d))
+        d = dataset1[dataset1.C + 2 < dataset1.B]
+        as_str = '''A	B	C
+-1	10	3
+2	11	6
+-3	12	9
+4	13	12
+5	14	15'''
+        self.assertEqual(as_str, str(d))
         
 #         d = dataset1[dataset1.C % 2 == 0]
 #         as_str = '''A	B	C

@@ -71,7 +71,10 @@ class PairedLabelReference(LabelReference):
         self.operate = operate
     def lookup(self, data, row_number):
         first_value = data[self.first.label][row_number]
-        second_value = data[self.second.label][row_number]
+        if isinstance(self.second, LabelReference):
+            second_value = data[self.second.label][row_number]
+        else:
+            second_value = self.second
         return self.operate(first_value, second_value)
     def __lt__(self, value):
         return GeneralComparison(self.lookup, value, operator.lt)
