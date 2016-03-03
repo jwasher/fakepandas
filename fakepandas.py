@@ -84,15 +84,6 @@ class Dataset:
         self.length = num_rows(data)
         self.labels = sorted(data.keys())
 
-    def __str__(self):
-        def row(row_number):
-            return '\t'.join([
-                str(self.data[label][row_number])
-                for label in self.labels])
-        header = '\t'.join(self.labels) + '\n'
-        return header + '\n'.join([
-            row(row_number) for row_number in range(self.length)])
-
     def __getattr__(self, label):
         if label not in self.data:
             raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, label))
@@ -107,6 +98,16 @@ class Dataset:
             if comparison.apply(self.data, row_number):
                 append_row(row_number)
         return Dataset(filtered_data)
+
+    # presentation/rendering methods
+    def __str__(self):
+        def row(row_number):
+            return '\t'.join([
+                str(self.data[label][row_number])
+                for label in self.labels])
+        header = '\t'.join(self.labels) + '\n'
+        return header + '\n'.join([
+            row(row_number) for row_number in range(self.length)])
 
     def pprint(self):
         print(self.pprint_str())
