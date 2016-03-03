@@ -1,4 +1,5 @@
 import operator
+
 def num_rows(d):
     'Get number of data rows. Raise ValueError if they are inconsistent.'
     if len(d) == 0:
@@ -13,21 +14,21 @@ def num_rows(d):
             raise ValueError(index)
     return length
 
+# The operator module does not provide functions for the logical "and"
+# and "or" operators, only the bitwise "&" and "|". So we make our own
+# functions for the logicals.
 def logical_and(a, b):
     return a and b
 
 def logical_or(a, b):
     return a or b
 
-class Conjunction:
-    def __init__(self, left, right, combine):
-        self.left = left
-        self.right = right
-        self.combine = combine
-    def apply(self, data, row_number):
-        return self.combine(self.left.apply(data, row_number), self.right.apply(data, row_number))
-
 class GeneralComparison:
+    '''
+    A generic representation of a comparison.
+
+    Used when comparing two columns to each other (i.e., two LabelReferences).
+    '''
     def __init__(self, lookup, value, operate):
         self.lookup = lookup
         self.value = value
@@ -35,18 +36,44 @@ class GeneralComparison:
     def apply(self, data, row_number):
         other_value = self.lookup(data, row_number)
         return self.operate(other_value, self.value)
+    # __and__ is actually bitwise and ("a & b"), not logical and ("a
+    # and b").  Unfortunately, no current version of Python provides a
+    # magic method for logical and.  Thus, we have little choice but
+    # to fake it using bitwise and.
     def __and__(self, other):
         return Conjunction(self, other, logical_and)
+    # The situation with __or__ is exactly analogous.
     def __or__(self, other):
         return Conjunction(self, other, logical_or)
 
 class Comparison(GeneralComparison):
+    '''
+    Simplified form of comparison.
+
+    Used when comparing a column (LabelReference) to a constant value.
+    '''
     def __init__(self, label: str, value, operate):
         def lookup(data, row_number):
             return data[label][row_number]
         super().__init__(lookup, value, operate)
+
+class Conjunction:
+    '''
+    Represents a logical "and" or "or" relationship between two expressions.
+
+    combine will generally be set to either logical_and or logical_or.
+    '''
+    def __init__(self, left: GeneralComparison, right: GeneralComparison, combine: 'func'):
+        self.left = left
+        self.right = right
+        self.combine = combine
+    def apply(self, data: dict, row_number: int):
+        return self.combine(self.left.apply(data, row_number), self.right.apply(data, row_number))
     
 class LabelReference:
+    '''
+    Represents a labeled column in a Dataset.
+    '''
     def __init__(self, label: str):
         self.label = label
     def compare(self, value, operate):
@@ -69,32 +96,40 @@ class LabelReference:
         return PairedLabelReference(self, other, operator.mod)
 
 class PairedLabelReference(LabelReference):
-    def __init__(self, first, second, operate):
+    '''
+    Represents two separate columns in some comparision relation to each other.
+    '''
+    def __init__(self, first: LabelReference, second: LabelReference, operate: 'func'):
         self.first = first
         self.second = second
         self.operate = operate
-    def lookup(self, data, row_number):
+    def lookup(self, data: dict, row_number: int):
         first_value = data[self.first.label][row_number]
         if isinstance(self.second, LabelReference):
             second_value = data[self.second.label][row_number]
         else:
             second_value = self.second
         return self.operate(first_value, second_value)
-    def compare(self, value, operate):
+    def compare(self, value, operate: 'func'):
         return GeneralComparison(self.lookup, value, operate)
 
 class Dataset:
+    '''
+    Core class representing a set of data.
+
+    Filter rows with obj[expression].
+    '''
     def __init__(self, data: dict):
         self.data = data
         self.length = num_rows(data)
         self.labels = sorted(data.keys())
 
-    def __getattr__(self, label):
+    def __getattr__(self, label: str):
         if label not in self.data:
             raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, label))
         return LabelReference(label)
 
-    def __getitem__(self, comparison):
+    def __getitem__(self, comparison: GeneralComparison):
         filtered_data = dict((label, []) for label in self.labels)
         def append_row(row_number):
             for label in self.labels:
@@ -143,5 +178,3 @@ class Dataset:
             lines.append('| ' + ' | '.join(formatted_values) + ' |')
         lines.append(HR)
         return '\n'.join(lines)
-        
-
