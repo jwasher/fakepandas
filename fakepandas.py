@@ -1,7 +1,11 @@
 import operator
 
 def num_rows(d):
-    'Get number of data rows. Raise ValueError if they are inconsistent.'
+    '''
+    Get number of data rows.
+
+    Raise ValueError if not all columns have the same number of rows.
+    '''
     if len(d) == 0:
         return 0
     def gen_columns():
