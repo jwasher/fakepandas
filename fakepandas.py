@@ -63,6 +63,8 @@ class LabelReference:
         return PairedLabelReference(self, other, operator.add)
     def __sub__(self, other):
         return PairedLabelReference(self, other, operator.sub)
+    def __mod__(self, other):
+        return PairedLabelReference(self, other, operator.mod)
 
 class PairedLabelReference(LabelReference):
     def __init__(self, first, second, operate):

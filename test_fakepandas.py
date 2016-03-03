@@ -134,16 +134,16 @@ class TestDataset(unittest.TestCase):
 5	14	15'''
         self.assertEqual(as_str, str(d))
         
-#         d = dataset1[dataset1.C % 2 == 0]
-#         as_str = '''A	B	C
-# 2	11	6
-# 4	13	12'''
-#         self.assertEqual(as_str, str(d))
+        d = dataset1[dataset1.C % 2 == 0]
+        as_str = '''A	B	C
+2	11	6
+4	13	12'''
+        self.assertEqual(as_str, str(d))
 
-#         d = dataset1[dataset1.C % 2 == 1]
-#         as_str = '''A	B	C
-# -1	10	3
-# -3	12	9
-# 5	14	15'''
-#         self.assertEqual(as_str, str(d))
+        d = dataset1[dataset1.C % 2 == 1]
+        as_str = '''A	B	C
+-1	10	3
+-3	12	9
+5	14	15'''
+        self.assertEqual(as_str, str(d))
 
