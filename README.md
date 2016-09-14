@@ -12,5 +12,5 @@ This software is in the public domain.
 
 ## About the Author
 
-Aaron Maxwell (aaron@migrateup.com) is author of the [Advanced Python
+Aaron Maxwell (aaron@migrateup.com) is author of the [Powerful Python
 Newsletter](http://migrateup.com/python/).
